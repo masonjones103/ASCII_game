@@ -1,14 +1,5 @@
 # Hello, this is the starting code for my WIP ASCII game.
 
-# room1 = [
-#         ['[', '=', '=', '-', '-', '=', '=', ']'],
-#         ['[', ' ', ' ', ' ', ' ', ' ', ' ', ']'],
-#         ['[', ' ', ' ', ' ', ' ', ' ', ' ', ']'],
-#         ['[', ' ', ' ', ' ', ' ', ' ', ' ', ']'],
-#         ['[', ' ', ' ', ' ', ' ', ' ', ' ', ']'],
-#         ['[', '=', '=', '=', '=', '=', '=', ']'],
-#         ]
-
 #import os
 
 hp = 10
@@ -51,10 +42,6 @@ def menu():
     elif exit_menu:
         quit()
 
-# def print_row(row):
-#     for char in row:
-#         print(char, end='')
-
 #accesses the nested list to print each character in the chosen list
 def print_room(room, row):
     i = 0
@@ -80,6 +67,33 @@ def change_char(row, index, char):
         #print('')
         value = False
 
+# def player_cords(room, row, index):
+#     if room1.find('@') != -1:
+#         player_position = room[row][index]
+#         return player_position
+
+#searches each row to see if the '@' character is found. If it is, it returns that index, else it returns -1
+def find_row(row):
+    search = True
+    while search:
+        try:
+            return room1[row].index('@')
+        except ValueError:
+            return -1
+
+#iterates through each row, then uses find row to find the index of '@'
+def find_pos():
+    row = 0
+    pos = 0
+    search = True
+    while search:
+        if find_row(row) == -1:
+            row += 1
+            find_row(row)
+        else:
+            pos = find_row(row)
+            return pos
+
 #def update_position():
 
 #def clear_row():
@@ -91,7 +105,9 @@ row2 = ['[', ' ', ' ', ' ', ' ', ' ', ']']
 updated_row1 = ['[', '=', '=', '-', '=', '=', ']']
 updated_row2 = ['[', ' ', ' ', ' ', ' ', ' ', ']']
 
-room1 = [['[', '=', '=', '-', '=', '=', ']'], ['[', ' ', ' ', ' ', ' ', ' ', ']']]
+room1 = [['[', '=', '=', '-', '=', '=', ']'],
+         ['[', ' ', ' ', ' ', '@', ' ', ']'],
+         ]
 # for char in room1:
 #     print(char, end='')
 # for char in room2:
@@ -108,3 +124,8 @@ room1 = [['[', '=', '=', '-', '=', '=', ']'], ['[', ' ', ' ', ' ', ' ', ' ', ']'
 # end = input('')
 print_room(room1, 0)
 print_room(room1, 1)
+#print(player_cords(room1, 1, 3))
+test_list = ['=', '@', '=']
+# print(test_list.index('@'))
+# print(room1[1].index('@'))
+print(find_pos())

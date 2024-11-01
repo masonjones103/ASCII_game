@@ -8,14 +8,15 @@
 #         ['[', ' ', ' ', ' ', ' ', ' ', ' ', ']'],
 #         ['[', '=', '=', '=', '=', '=', '=', ']'],
 #         ]
-#prints each individual character in a row using a for loop
-import os
+
+#import os
 
 hp = 10
 dmg = 1
 weapon = 'Club'
 armor = 'Leather'
 
+#prints stat menu, uses .ljust to keep boundaries even regardless of variable length
 def stats():
     print('[====================]')
     print(f'[ HP = {hp}          '.ljust(21, ' '), end='')
@@ -35,32 +36,40 @@ def menu():
     print('(P)lay')
     print('(E)xit')
     print('>----------<')
-    Play = False
-    Exit = False
-    while Play == False and Exit == False:
+    play = False
+    exit_menu = False
+    while play == False and exit_menu == False:
         menu_choice = input('>').lower().strip()
         if menu_choice == 'p':
-            Play = True
+            play = True
         elif menu_choice == 'e':
-            Exit = True
+            exit_menu = True
         else:
             print('Please type (P) to play or (E) to exit.')
-    if Play == True:
+    if play:
         print('Welcome to the Dungeon of Doom...')
-    elif Exit == True:
+    elif exit_menu:
         quit()
 
-def print_row(row):
-    for char in row:
-        print(char, end='')
+# def print_row(row):
+#     for char in row:
+#         print(char, end='')
+
+#accesses the nested list to print each character in the chosen list
+def print_room(room, row):
+    i = 0
+    for char in range(len(room[row])):
+        print(room[row][i], end='')
+        i += 1
+    print('')
 
 #calls print_row to print multiple rows, need to figure out how to iterate through each row
-def print_room(row):
-    #row_num = 1
-    for row_num in range(1):
-        print_row(row)
-        print('')
-        #row_num += 1
+# def print_room(row):
+#     #row_num = 1
+#     for row_num in range(1):
+#         print_row(row)
+#         print('')
+#         #row_num += 1
 
 #updates the inputted row index to match the inputted character
 def change_char(row, index, char):
@@ -81,6 +90,8 @@ row2 = ['[', ' ', ' ', ' ', ' ', ' ', ']']
 #used to store the changed character
 updated_row1 = ['[', '=', '=', '-', '=', '=', ']']
 updated_row2 = ['[', ' ', ' ', ' ', ' ', ' ', ']']
+
+room1 = [['[', '=', '=', '-', '=', '=', ']'], ['[', ' ', ' ', ' ', ' ', ' ', ']']]
 # for char in room1:
 #     print(char, end='')
 # for char in room2:
@@ -92,6 +103,8 @@ updated_row2 = ['[', ' ', ' ', ' ', ' ', ' ', ']']
 # updated_row2 = row2
 # change_char(updated_row2, 3, '@')
 # print_room(updated_row2)
-menu()
-stats()
-end = input('')
+# menu()
+# stats()
+# end = input('')
+print_room(room1, 0)
+print_room(room1, 1)

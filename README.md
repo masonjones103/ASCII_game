@@ -17,7 +17,7 @@ py your\file\extension\game_main.py
 For example, I would type: 
 
 ```
-C:\Users\Mason\Documents\GitHub\ASCII_game\game_main.py
+py C:\Users\Mason\Documents\GitHub\ASCII_game\game_main.py
 ```
 
 4.) Enjoy!

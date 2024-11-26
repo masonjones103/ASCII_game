@@ -4,14 +4,17 @@
  - FIX: Occasional Out-Of-Bounds Error(?)
  - Add new equipment
  - Make movement one button press
- - Fix combat so that goblin does not change attacks when the player inputs the wrong value
+ - Add health and energy bar to combat screen
+ - Add further combat dialogue
 #DOING:
- -Adding combat
  - Add treasure room
+ - Print different goblins based on enemy health
 #DONE:
  - Added bounds to the room
  - Added collision to enemy
  - Made goblin in ASCII
+ - Fix combat so that goblin does not change attacks when the player inputs the wrong value
+ - Adding combat
 '''
 
 import os
@@ -51,12 +54,12 @@ goblin1 = r'''
                             \ o' 'o /
                              | """ |     __
                      ^^      \ """ /     \_\
-                     \ \      |   |      /  |  
-                      \ \____/     \____/ /\ \_
+                     \ \      |   |      /  |_ 
+                      \ \____/     \____/ /\  |>
                        \_____ .   . _____/  \  |>
                             /       \        \  |>
-                           /    .    \        \  |>
-                          {----(#)----}        \/
+                           /    .    \        \/
+                          {----(#)----}      
                           {           }
                           {_/\_____/\_}
                             ||     ||
@@ -90,17 +93,10 @@ Your swing connects with the goblin's neck and his head goes flying, decapitated
 # the player's stat values
 player_hp = 10
 player_eg = 10
-# dmg = '1-3'
-# weapon = 'Sword'
-# armor = 'Leather'
 
 # the enemy's stat values
 enemy_hp = 10
 enemy_eg = 10
-
-# # weapon damage ranges
-# sword_dmg = (1, 3)
-# cleaver_dmg = (1, 2)
 
 # set to False if the goblin dies
 enemy_alive = True
@@ -139,12 +135,6 @@ def stats():
     print(']')
     print(f'[ Energy = {player_eg} '.ljust(21, ' '), end='')
     print(']')
-    # print(f'[ Damage = {dmg}     '.ljust(21, ' '), end='')
-    # print(']')
-    # print(f'[ Weapon = {weapon}  '.ljust(21, ' '), end='')
-    # print(']')
-    # print(f'[ Armor = {armor}    '.ljust(21, ' '), end='')
-    # print(']')
     print('[====================]')
     print('''
 ''')
@@ -291,10 +281,6 @@ def enemy_encounter():
         attack = input("You inch towards the goblin with your sword drawn and ready yourself for combat.")
         while player_hp > 0 or enemy_hp > 0:
             combat()
-        print(f'Player HP: {player_hp}')
-        print(f'Player EG: {player_eg}')
-        print(f'Enemy HP: {enemy_hp}')
-        print(f'Enemy EG: {enemy_eg}')
         pause = input('')
     elif choice1 == 'R':
         print("You turn around to run, the goblin lunges onto your back and stabs you repeatedly until you die.")
@@ -319,19 +305,16 @@ def enemy_stance():
 
 # gets the player's combat choice input
 def player_stance():
-    combat_choice = input('''                   What would you like to prepare for?     
-                (L)ight attack, (H)eavy attack, or (P)arry?\n>''').upper().strip()
+    combat_choice = input('>').upper().strip()
     if combat_choice == 'L':
-        player_l_atk = True
-        return player_l_atk
+        x = 'L'
+        return x
     elif combat_choice == 'H':
-        player_h_atk = True
-        return player_h_atk
+        x = 'H'
+        return x
     elif combat_choice == 'P':
-        player_p = True
-        return player_p
-    else:
-        player_stance()
+        x = 'P'
+        return x
 
 # runs through combat. I need to clean it up and split it into more functions probably.
 def combat():
@@ -342,6 +325,11 @@ def combat():
     player_l_atk = False
     player_h_atk = False
     player_p = False
+
+    global player_hp
+    global player_eg
+    global enemy_hp
+    global enemy_eg
 
     clear_screen()
     #stats()
@@ -361,20 +349,19 @@ def combat():
         print('''       
                    The enemy is preparing to parry.''')
         enemy_p = True
-    # gets the player's combat choice input
-    combat_choice = input('''                   What would you like to prepare for?     
-                (L)ight attack, (H)eavy attack, or (P)arry?\n>''').upper().strip()
-    if combat_choice == 'L':
-        player_l_atk = True
-    elif combat_choice == 'H':
-        player_h_atk = True
-    elif combat_choice == 'P':
-        player_p = True
 
-    global player_hp
-    global player_eg
-    global enemy_hp
-    global enemy_eg
+    # asks the how they would like to react and while none of the moves are true, it runs player_stance() to check for their input until they input a correct response.
+    print('''                    What move would you like to make?     
+                (L)ight attack, (H)eavy attack, or (P)arry?''')
+    while player_l_atk == False and player_h_atk == False and player_p == False:
+        x = player_stance()
+        if x == 'L':
+            player_l_atk = True
+        elif x == 'H':
+            player_h_atk = True
+        elif x == 'P':
+            player_p = True
+
     # all the combinations of player and enemy attacks
     if enemy_l_atk == True and player_l_atk == True:
         pause = input('You both strike each other with a quick jab, drawing a small amount of blood.')
@@ -414,6 +401,9 @@ def combat():
         enemy_eg -= 1
     elif enemy_p == True and player_p == True:
         pause = input("You both steel yourself for an attack, nothing happens.")
+    else:
+        print(enemy_l_atk, enemy_h_atk, enemy_p, player_l_atk, player_h_atk, player_p)
+        pause = input('error in player and enemy attack combination')
     if player_eg < 0:
         player_hp += player_eg
     if enemy_eg < 0:
@@ -422,7 +412,9 @@ def combat():
         end = input('You die.')
         quit()
     if enemy_hp <= 0:
-        end = input('The enemy dies.')
+        clear_screen()
+        print(goblin_dead)
+        end = input('')
         quit()
 
 # the standard order of functions for moving around the map

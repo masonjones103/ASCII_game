@@ -24,23 +24,37 @@ py C:\Users\Mason\Documents\GitHub\ASCII_game\game_main.py
 
 ## Playing the game:
 1.) Press the highlighted key of the word you wish to choose. For example if I wanted to select (P)lay. I would type P.
+
 2.) Press enter.
+
 3.) Use WASD and enter to move around the dungeon.
+
 4.) When fighting the goblin, choose (L)ight attack, (H)eavy attack, or (P)arry based off of what the opponent is doing.
 
 ## Combat cheat sheet:
 Light attack beats heavy.
+
 Heavy beats parry.
+
 Parry beats light.
 
+
 Enemy light, player light = both take 1 dmg.
+
 Enemy light, player heavy = player takes 1 dmg, player loses 3 energy.
+
 Enemy light, player parry = enemy takes 1 dmg, player loses 1 energy.
 
+
 Enemy heavy, player light = enemy takes 1 dmg, enemy loses 3 energy.
+
 Enemy heavy, player heavy = both take 3 dmg, both lose 3 energy.
+
 Enemy heavy, player parry = player takes 2 dmg, player loses 1 energy, enemy loses 3 energy.
 
+
 Enemy parry, player light = player takes 1 dmg.
+
 Enemy parry, player heavy = enemy takes 2 dmg, enemy loses 1 energy, player loses 3 energy.
+
 Enemy parry, player parry = nothing happens.

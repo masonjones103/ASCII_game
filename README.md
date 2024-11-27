@@ -32,12 +32,13 @@ py C:\Users\Mason\Documents\GitHub\ASCII_game\game_main.py
 4.) When fighting the goblin, choose (L)ight attack, (H)eavy attack, or (P)arry based off of what the opponent is doing.
 
 ## Combat cheat sheet:
-Light attack beats heavy.
+Light beats heavy.
 
 Heavy beats parry.
 
 Parry beats light.
 
+&nbsp;
 
 Enemy light, player light = both take 1 dmg.
 
@@ -45,6 +46,7 @@ Enemy light, player heavy = player takes 1 dmg, player loses 3 energy.
 
 Enemy light, player parry = enemy takes 1 dmg, player loses 1 energy.
 
+&nbsp;
 
 Enemy heavy, player light = enemy takes 1 dmg, enemy loses 3 energy.
 
@@ -52,6 +54,7 @@ Enemy heavy, player heavy = both take 3 dmg, both lose 3 energy.
 
 Enemy heavy, player parry = player takes 2 dmg, player loses 1 energy, enemy loses 3 energy.
 
+&nbsp;
 
 Enemy parry, player light = player takes 1 dmg.
 

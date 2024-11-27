@@ -4,17 +4,18 @@
  - FIX: Occasional Out-Of-Bounds Error(?)
  - Add new equipment
  - Make movement one button press
- - Add health and energy bar to combat screen
- - Add further combat dialogue
 #DOING:
- - Add treasure room
- - Print different goblins based on enemy health
+
 #DONE:
  - Added bounds to the room
  - Added collision to enemy
  - Made goblin in ASCII
  - Fix combat so that goblin does not change attacks when the player inputs the wrong value
  - Adding combat
+ - Add treasure room
+ - Print different goblins based on enemy health
+ - Add further combat dialogue
+ - Add health and energy bar to combat screen
 '''
 
 import os
@@ -46,7 +47,7 @@ bounds = [
     [[5, 0], [5, 1], [5, 2], [5, 3], [5, 4], [5, 5], [5, 6]]
 ]
 
-# a very scary goblin. For some reason line 47 reads normal if the terminal if I run it offset like that.
+# a very scary goblin. Added wounded versions that appear when various health thresholds are crossed.
 goblin1 = r'''
                             /\     /\
 	                   (  \___/  )
@@ -68,12 +69,75 @@ goblin1 = r'''
                            /  \   /  \
                            ^^^^   ^^^^
 '''
-
+goblin_wounded1 = r'''   
+                            /\     /\
+			   (  \___/  )
+                            |       |
+                            \ o' 'o /
+                             | """ |     __
+                             \ """ /     \_\
+                              |   |      /  |_
+                         ____/     \____/ /\  |>
+                        | ___ .   . _____/  \  |>
+                        | | /       \        \  |>
+                        \ >)    .    \        \/
+                        ~ {----(#)----}        
+                        ~ {           }
+                       ~~ {_/\_____/\_}
+                       ~    ||     ||
+                       ~    (|     |)
+                       ~    ||     ||
+                       ~   /  \   /  \
+                     ~~~~~ ^^^^   ^^^^		
+'''
+goblin_wounded2 = r'''
+                     	     /\       
+			    (  \___/**~
+                            |       |~
+                            \ o' 'o /~
+                             |     | ~   __
+                             \  =  /     \_\
+                              |   |      /  |_ 
+                         ____/     \____/ /\  |>
+                        | ___ .   . _____/  \  |>
+                        | | /       \        \  |>
+                        \ >)    .    \        \/
+                        ~ {----(#)----}        
+                        ~ {           }
+                       ~~ {_/\_____/\_}
+                       ~    ||     ||
+                       ~    (|     |)
+                       ~    ||     ||
+                       ~   /  \   /  \
+                     ~~~~~ ^^^^   ^^**~~~~~	
+'''
+goblin_wounded3 = r'''
+                     	     /\       
+			    (  \___/**~
+                            |       |~
+                            \ o' '# /~
+                             |     | ~         
+                             \  -  /           
+                              |   |           
+                         ____/     \___        
+                        | ___ .   . __ \ __   
+                        | | /       \ \ \\_\      
+                        \ >)    . {} \ \___ |_       
+                        ~ {----(#)~~--}    \  |>       
+                        ~ {       ~   }     \  |>
+                       ~  {_/\____~/\_}      \  |>
+                       ~    ||    ~||         \/
+                       ~    (|   ~ |)          ~
+                       ~    ||   ~ ||          ~
+                       ~   /  \  ~/  \         ~
+                     ~~~~~~^^^^~~~^^**~~~~~  ~~~~~
+'''
 goblin_meet = r'''
             You meet face to face with the ferocious goblin.
               Will you (A)ttack the goblin or (R)un away?
 '''
 
+# screen appears when the player kills the goblin
 goblin_dead = r'''
 
 
@@ -90,6 +154,35 @@ goblin_dead = r'''
 Your swing connects with the goblin's neck and his head goes flying, decapitated.
 '''
 
+# treasure room displayed when the player defeats the goblin and enters the room behind him
+treasure_room = r'''
+ _______________________________________________________________________
+|               |     ~~      | ~~~~~~~~~~ |   ~~       |               |
+|               |       ~     |  ~~~~~~~~  |     ~      |               |
+|               |      [#]    |   ~~~~~~   |    [#]     |               |
+|               |       V     |  ~~~~~~~~  |     V      |               |
+|               |             |     ~~     |            |               |
+|               |             ^v^v^v^^v^v^v^            |               |
+|               |                                    .  |               |
+|               |                   ()           0  <|> |               |
+|               |  ___________    _{++}_          \__|_ |               |
+|               |_[-----#-----]___\----/__________(----)|               |
+|              /  [___________]   /____\          (----) \              |
+|             /                                           \             |
+|            /                                             \            |
+|         /|/                 ______________                \           |
+|        / |                ~/ ------------ \~           __I_\          |
+|       |  |_____          ~/ /            \ \~         |\(~)I\         |
+|       | /*0* */|        ~/ /              \ \~        | \ (~)\        |
+|       |/ *0 0/ /       ~/ /                \ \~       \  \____\       |
+|      /|_*0_*/ /       ~/ /                  \ \~       \ |    |\      |
+|     / |_____|/       ~/ /                    \ \~       \|____| \     |
+|    / 0 * *          ~/ /                      \ \~               \    |
+|   /     0          ~/ /                        \ \~               \   |
+|  /                ~/ /                          \ \~               \  |
+| /                ~/ /                            \ \~               \ |
+|/                ~/ /                              \ \~               \|
+'''
 # the player's stat values
 player_hp = 10
 player_eg = 10
@@ -271,6 +364,11 @@ def clear_screen():
     else:
         os.system('clear')
 
+# rolls from 1 - 3 and returns that number
+def rand_1_3():
+    x = random.randint(1, 3)
+    return x
+
 # if you encounter the goblin, this function clears the screen and prints the scary goblin
 def enemy_encounter():
     clear_screen()
@@ -318,7 +416,6 @@ def player_stance():
 
 # runs through combat. I need to clean it up and split it into more functions probably.
 def combat():
-    goblin = goblin1
     enemy_l_atk = False
     enemy_h_atk = False
     enemy_p = False
@@ -332,27 +429,62 @@ def combat():
     global enemy_eg
 
     clear_screen()
-    #stats()
-    print(goblin)
+    # when the goblin's HP reaches certain thresholds different wounded goblins are printed.
+    if enemy_hp > 7:
+        print(goblin1)
+    elif enemy_hp >= 5:
+        print(goblin_wounded1)
+    elif enemy_hp >= 3:
+        print(goblin_wounded2)
+    elif enemy_hp >= 1:
+        print(goblin_wounded3)
     # gets the enemy's combat choice
     stance = enemy_stance()
     # prints the enemy's attack choice
     if stance == 'lightattack':
-        print('''       
-                  The enemy is preparing a light attack.''')
+        rand_num = rand_1_3()
+        if rand_num == 1:
+            print('''
+        The goblin looks eager to dart in and prances lightly on his feet.''')
+        elif rand_num == 2:
+            print('''
+The goblin juggles his cleaver between his hands and eyes you. It looks like he's gauging you.''')
+        elif rand_num == 3:
+            print('''
+The goblin cackles maniacally and darts in and out, trying to fake you out.''')
         enemy_l_atk = True
     elif stance == 'heavyattack':
-        print('''       
-                The enemy is preparing for a heavy attack''')
+        rand_num = rand_1_3()
+        if rand_num == 1:
+            print('''
+The goblin glares at you and growls menacingly before shifting his cleaver to hold it with two hands.''')
+        elif rand_num == 2:
+            print('''
+The goblin howls at the ceiling, the frightful call echoes throughout the room
+and his red eyes glitter at you menacingly. His muscles are taut with anticipation.''')
+        elif rand_num == 3:
+            print('''
+        The goblin grins at you, needle-like teeth glinting in the torch light. 
+          He holds his cleaver high above his head and steps forward slowly, 
+                like a tiger stalking its prey before it lunges.''')
         enemy_h_atk = True
     elif stance == 'parry':
-        print('''       
-                   The enemy is preparing to parry.''')
+        rand_num = rand_1_3()
+        if rand_num == 1:
+            print('''
+The goblin hisses at you and takes a step back, cleaver held up in front of its body.''')
+        elif rand_num == 2:
+            print('''
+        The goblin eyes you warily and braces itself as if expecting an attack.''')
+        elif rand_num == 3:
+            print('''
+        The goblin stares at you impassively, waiting for you to make your next move.''')
         enemy_p = True
 
-    # asks the how they would like to react and while none of the moves are true, it runs player_stance() to check for their input until they input a correct response.
-    print('''                    What move would you like to make?     
-                (L)ight attack, (H)eavy attack, or (P)arry?''')
+    # asks the player how they would like to react and while none of the moves are true, it runs player_stance() to check for their input until they input a correct response. Also displays the player's health and energy.
+    print(f'''                    
+[HP = {player_hp}]          What move would you like to make?     
+[EG = {player_eg}]      (L)ight attack, (H)eavy attack, or (P)arry?''')
     while player_l_atk == False and player_h_atk == False and player_p == False:
         x = player_stance()
         if x == 'L':
@@ -362,40 +494,107 @@ def combat():
         elif x == 'P':
             player_p = True
 
-    # all the combinations of player and enemy attacks
+    # all the combinations of player and enemy attacks. Rolls a 3 sided dice to see which dialogue it uses.
     if enemy_l_atk == True and player_l_atk == True:
-        pause = input('You both strike each other with a quick jab, drawing a small amount of blood.')
+        rand_num = rand_1_3()
+        if rand_num == 1:
+            print('You both strike each other with a quick jab, drawing a small amount of blood.')
+        elif rand_num == 2:
+            print("The goblin and you strike at the same instant, and you each hold a quivering blade, point stuck in the other's chest")
+        elif rand_num == 3:
+            print('''The goblin darts forward with a lightning fast jab, 
+it is too fast to dodge so steel yourself for its impact and stab at the goblin.''')
+        pause = input('')
         player_hp -= 1
         enemy_hp -= 1
     elif enemy_l_atk == True and player_h_atk == True:
-        pause = input('You prepare for a heavy strike, but the goblin darts in with a quick jab before you can react.')
+        rand_num = rand_1_3()
+        if rand_num == 1:
+            print('You prepare for a heavy strike, but the goblin darts in with a quick jab before you can react.')
+        elif rand_num == 2:
+            print('You bring your sword high for a mighty blow, but the goblin lunges in with a quick stab before you can swing.')
+        elif rand_num == 3:
+            print('With a mighty roar, you swing your sword in a powerful stroke, but the goblin darts to the side and stabs you, halting your blow.')
+        pause = input('')
         player_hp -= 1
         player_eg -= 3
     elif enemy_l_atk == True and player_p == True:
-        pause = input('The goblin strikes at you with a quick jab, but you easily parry the light blow, striking back with a stab.')
+        rand_num = rand_1_3()
+        if rand_num == 1:
+            print('The goblin strikes at you with a quick jab, but you easily parry the light blow, striking back with a stab.')
+        elif rand_num == 2:
+            print("Ready for the goblin's swing, you easily parry his blade and strike back with a riposte.")
+        elif rand_num == 3:
+            print("The goblin darts in with a quick jab, but you were prepared, your sword clashes with the cleaver and slides past to stab the goblin.")
+        pause = input('')
         player_eg -= 1
         enemy_hp -= 1
     elif enemy_h_atk == True and player_l_atk == True:
-        pause = input('The goblin lifts his cleaver high, preparing for a mighty strike, but you dart in a quick jab before before he can react.')
+        rand_num = rand_1_3()
+        if rand_num == 1:
+            print('''The goblin lifts his cleaver high, preparing for a mighty strike, 
+but you dart in a quick jab before before he can react.''')
+        elif rand_num == 2:
+            print('''With a roar the goblin charges, his cleaver held high, but you are prepared, 
+and with a quick sidestep and jab, the goblin halts with your sword point in his breast.''')
+        elif rand_num == 3:
+            print('''The goblin braces himself before lunging forward with a mighty blow, 
+but you anticipated this and quickly dash to the side, slashing the goblin as he passes by.''')
+        pause = input('')
         enemy_hp -= 1
         enemy_eg -= 3
     elif enemy_h_atk == True and player_h_atk == True:
-        pause = input('You both lift your weapons high and strike a vicious blow on each other, disregarding your personal safety.')
+        rand_num = rand_1_3()
+        if rand_num == 1:
+            print('You both lift your weapons high and strike a vicious blow on each other, disregarding your personal safety.')
+        elif rand_num == 2:
+            print("With bestial roars, you and goblin lunge at each other, striking mortal blows.")
+        elif rand_num == 3:
+            print('''Safety be damned! You bound forward with a mighty strike, disregarding the goblin's vicious cleaver, 
+and your sword sinks home in your enemy's flesh, while his sinks home in yours.''')
+        pause = input('')
         player_hp -= 3
         player_eg -= 3
         enemy_hp -= 3
         enemy_eg -= 3
     elif enemy_h_atk == True and player_p == True:
-        pause = input('The goblin strikes with a mighty blow, powering through your parry.')
+        rand_num = rand_1_3()
+        if rand_num == 1:
+            print('The goblin strikes with a mighty blow, powering through your parry.')
+        elif rand_num == 2:
+            print("The goblin lunges at you with a powerful swing, you attempt to parry it but the blow is too strong and slides past your blade into your flesh.")
+        elif rand_num == 3:
+            print('''The goblin jumps high, cleaver held above his head. You brace yourself and attempt to parry his blow, 
+but his momentum is too great and you crumple before his blow, sinking to the ground with a mighty wound.''')
+        pause = input('')
         player_hp -= 2
         player_eg -= 1
         enemy_eg -= 3
     elif enemy_p == True and player_l_atk == True:
-        pause = input("You stab at the goblin with a light strike, but he easily parries the blow and lands a quick riposte.")
+        rand_num = rand_1_3()
+        if rand_num == 1:
+            print("You stab at the goblin with a light strike, but he easily parries the blow and lands a quick riposte.")
+        elif rand_num == 2:
+            print('''The goblin halts his onslaught and you take the opportunity for a quick strike, 
+but he anticipated this and easily parries your blade, striking back with a riposte.''')
+        elif rand_num == 3:
+            print('''You attempt to dart in a quick strike while the goblin catches his breath, 
+but with deceptive speed, the goblin raises his cleaver and parries your blade, striking back with a riposte.''')
+        pause = input("")
         player_hp -= 1
         enemy_eg -= 1
     elif enemy_p == True and player_h_atk == True:
-        pause = input("Your lift your sword over your head and bring it down upon the goblin with a mighty blow, he tries to parry the blade, but it powers through his block.")
+        rand_num = rand_1_3()
+        if rand_num == 1:
+            print('''Your lift your sword over your head and bring it down upon the goblin with a mighty blow, 
+he tries to parry the blade, but it powers through and bites into his flesh.''')
+        elif rand_num == 2:
+            print('''You bound forward with a mighty roar and crush the goblin's blade back in a shower of sparks, 
+smashing your sword into his shoulder.''')
+        elif rand_num == 3:
+            print('''You brace your legs before lunging forward with a mighty stab. 
+The goblin's attempt to parry does nothing to stop your blade and it meets home solidly in his chest.''')
+        pause = input("")
         player_eg -= 3
         enemy_hp -= 2
         enemy_eg -= 1
@@ -414,7 +613,10 @@ def combat():
     if enemy_hp <= 0:
         clear_screen()
         print(goblin_dead)
-        end = input('')
+        pause = input('')
+        clear_screen()
+        print(treasure_room)
+        end = input('You enter into the room behind the goblin. It is filled with glittering treasure! Congratulations!')
         quit()
 
 # the standard order of functions for moving around the map

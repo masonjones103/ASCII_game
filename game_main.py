@@ -4,8 +4,11 @@
  - FIX: Occasional Out-Of-Bounds Error(?)
  - Add new equipment
  - Make movement one button press
+ - Make separate file for ASCII art
+ - Add color in terminal
 #DOING:
-
+ - Fixing combat dialogue positioning
+ - Adding a game over screen for when the player dies
 #DONE:
  - Added bounds to the room
  - Added collision to enemy
@@ -255,12 +258,6 @@ def change_char(room, row, index, char):
         room[row][index] = char
         value = False
 
-# temporary win condition if you make it to the end of the room.
-def win_game():
-    if position == [0, 3]:
-        pause = input("Congrats! You've completed the game!")
-        exit()
-
 # stored in lines if you encounter the goblin
 def on_enemy():
     lines[0] = 'You meet face to face with the ferocious goblin.'
@@ -483,7 +480,7 @@ The goblin hisses at you and takes a step back, cleaver held up in front of its 
 
     # asks the player how they would like to react and while none of the moves are true, it runs player_stance() to check for their input until they input a correct response. Also displays the player's health and energy.
     print(f'''                    
-[HP = {player_hp}]          What move would you like to make?     
+[HP = {player_hp}]          What move would you like to make?              
 [EG = {player_eg}]      (L)ight attack, (H)eavy attack, or (P)arry?''')
     while player_l_atk == False and player_h_atk == False and player_p == False:
         x = player_stance()
@@ -518,6 +515,9 @@ it is too fast to dodge so steel yourself for its impact and stab at the goblin.
         pause = input('')
         player_hp -= 1
         player_eg -= 3
+        if player_eg < 0:
+            player_hp += player_eg
+            player_eg = 0
     elif enemy_l_atk == True and player_p == True:
         rand_num = rand_1_3()
         if rand_num == 1:
@@ -528,6 +528,9 @@ it is too fast to dodge so steel yourself for its impact and stab at the goblin.
             print("The goblin darts in with a quick jab, but you were prepared, your sword clashes with the cleaver and slides past to stab the goblin.")
         pause = input('')
         player_eg -= 1
+        if player_eg < 0:
+            player_hp += player_eg
+            player_eg = 0
         enemy_hp -= 1
     elif enemy_h_atk == True and player_l_atk == True:
         rand_num = rand_1_3()
@@ -543,6 +546,9 @@ but you anticipated this and quickly dash to the side, slashing the goblin as he
         pause = input('')
         enemy_hp -= 1
         enemy_eg -= 3
+        if enemy_eg < 0:
+            enemy_hp += enemy_eg
+            enemy_eg = 0
     elif enemy_h_atk == True and player_h_atk == True:
         rand_num = rand_1_3()
         if rand_num == 1:
@@ -555,8 +561,14 @@ and your sword sinks home in your enemy's flesh, while his sinks home in yours.'
         pause = input('')
         player_hp -= 3
         player_eg -= 3
+        if player_eg < 0:
+            player_hp += player_eg
+            player_eg = 0
         enemy_hp -= 3
         enemy_eg -= 3
+        if enemy_eg < 0:
+            enemy_hp += enemy_eg
+            enemy_eg = 0
     elif enemy_h_atk == True and player_p == True:
         rand_num = rand_1_3()
         if rand_num == 1:
@@ -569,7 +581,13 @@ but his momentum is too great and you crumple before his blow, sinking to the gr
         pause = input('')
         player_hp -= 2
         player_eg -= 1
+        if player_eg < 0:
+            player_hp += player_eg
+            player_eg = 0
         enemy_eg -= 3
+        if enemy_eg < 0:
+            enemy_hp += enemy_eg
+            enemy_eg = 0
     elif enemy_p == True and player_l_atk == True:
         rand_num = rand_1_3()
         if rand_num == 1:
@@ -583,6 +601,9 @@ but with deceptive speed, the goblin raises his cleaver and parries your blade, 
         pause = input("")
         player_hp -= 1
         enemy_eg -= 1
+        if enemy_eg < 0:
+            enemy_hp += enemy_eg
+            enemy_eg = 0
     elif enemy_p == True and player_h_atk == True:
         rand_num = rand_1_3()
         if rand_num == 1:
@@ -596,17 +617,19 @@ smashing your sword into his shoulder.''')
 The goblin's attempt to parry does nothing to stop your blade and it meets home solidly in his chest.''')
         pause = input("")
         player_eg -= 3
+        if player_eg < 0:
+            player_hp += player_eg
+            player_eg = 0
         enemy_hp -= 2
         enemy_eg -= 1
+        if enemy_eg < 0:
+            enemy_hp += enemy_eg
+            enemy_eg = 0
     elif enemy_p == True and player_p == True:
         pause = input("You both steel yourself for an attack, nothing happens.")
     else:
         print(enemy_l_atk, enemy_h_atk, enemy_p, player_l_atk, player_h_atk, player_p)
         pause = input('error in player and enemy attack combination')
-    if player_eg < 0:
-        player_hp += player_eg
-    if enemy_eg < 0:
-        enemy_hp += enemy_eg
     if player_hp <= 0:
         end = input('You die.')
         quit()
@@ -628,7 +651,6 @@ def order_of_play(room):
     update_char(room)
     print_room(room)
     print_lines(lines)
-    win_game()
 
 # lets you play the game, you just lost the game btw.
 def play_game(room):

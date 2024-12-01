@@ -6,6 +6,7 @@
  - Make movement one button press
  - Make separate file for ASCII art
  - Add color in terminal
+ - Fix tutorial
 #DOING:
  - Fixing combat dialogue positioning
 #DONE:
@@ -229,11 +230,11 @@ enemy_alive = True
 # stores lines that happen upon certain conditions
 lines = ['']
 
-# prints a menu where the player can select to play or exit the game
+# prints a menu where the player can select to play or exit the game. Tutorial currently has a bug, so I have commented it out until I can figure out what is going wrong.
 def menu():
     print('>----------<')
     print('(P)lay')
-    print('(T)utorial')
+    # print('(T)utorial')
     print('(E)xit')
     print('>----------<')
     play = False
@@ -242,21 +243,21 @@ def menu():
         menu_choice = input('>').lower().strip()
         if menu_choice == 'p':
             play = True
-        elif menu_choice == 't':
-            clear_screen()
-            pause = input('''
-Use WASD to move and Enter to confirm your choice. 
-When you encounter an enemy, choose your combat style depending upon what the enemy is doing.
-Your health and energy are displayed on the screen. 
-Certain attacks will lower your energy, don't let your energy hit 0!
-(Press enter to return to the menu...)
->''')
-            clear_screen()
-            menu()
+#         elif menu_choice == 't':
+#             clear_screen()
+#             pause = input('''
+# Use WASD to move and Enter to confirm your choice.
+# When you encounter an enemy, choose your combat style depending upon what the enemy is doing.
+# Your health and energy are displayed on the screen.
+# Certain attacks will lower your energy, don't let your energy hit 0!
+# (Press enter to return to the menu...)
+# >''')
+#             clear_screen()
+#             menu()
         elif menu_choice == 'e':
             exit_menu = True
         else:
-            print('Please type (P) to play, (T) for a tutorial, or (E) to exit.')
+            print('Please type (P) to play or (E) to exit.')
     if play:
         clear_screen()
         print('''Welcome to the Dungeon of Doom...

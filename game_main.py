@@ -234,26 +234,30 @@ lines = ['']
 def menu():
     print('>----------<')
     print('(P)lay')
-    # print('(T)utorial')
+    print('(T)utorial')
     print('(E)xit')
     print('>----------<')
     play = False
     exit_menu = False
-    while play == False and exit_menu == False:
+    while (play == False) and (exit_menu == False):
         menu_choice = input('>').lower().strip()
         if menu_choice == 'p':
             play = True
-#         elif menu_choice == 't':
-#             clear_screen()
-#             pause = input('''
-# Use WASD to move and Enter to confirm your choice.
-# When you encounter an enemy, choose your combat style depending upon what the enemy is doing.
-# Your health and energy are displayed on the screen.
-# Certain attacks will lower your energy, don't let your energy hit 0!
-# (Press enter to return to the menu...)
-# >''')
-#             clear_screen()
-#             menu()
+        elif menu_choice == 't':
+            clear_screen()
+            pause = input('''
+Use WASD to move and Enter to confirm your choice.
+When you encounter an enemy, choose your combat style depending upon what the enemy is doing.
+Your health and energy are displayed on the screen.
+Certain attacks will lower your energy, don't let your energy hit 0!
+(Press enter to return to the menu...)
+>''')
+            clear_screen()
+            print('>----------<')
+            print('(P)lay')
+            print('(T)utorial')
+            print('(E)xit')
+            print('>----------<')
         elif menu_choice == 'e':
             exit_menu = True
         else:

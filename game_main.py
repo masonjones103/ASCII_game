@@ -8,7 +8,6 @@
  - Add color in terminal
 #DOING:
  - Fixing combat dialogue positioning
- - Adding a game over screen for when the player dies
 #DONE:
  - Added bounds to the room
  - Added collision to enemy
@@ -19,6 +18,7 @@
  - Print different goblins based on enemy health
  - Add further combat dialogue
  - Add health and energy bar to combat screen
+ - Adding a game over screen for when the player dies
 '''
 
 import os
@@ -33,10 +33,10 @@ stored_char = [4, 3, ' ']
 # room stored as nested lists
 room1 = [
          ['[', '=', '=', '-', '=', '=', ']'],
-         ['[', ' ', ' ', 'g', ' ', '^', ']'],
-         ['[', '^', ' ', ' ', ' ', ' ', ']'],
-         ['[', ' ', ' ', ' ', ' ', '^', ']'],
-         ['[', '^', ' ', ' ', ' ', ' ', ']'],
+         ['[', ' ', ' ', 'g', ' ', '~', ']'],
+         ['[', '~', ' ', ' ', ' ', ' ', ']'],
+         ['[', ' ', ' ', ' ', ' ', '~', ']'],
+         ['[', '~', ' ', ' ', ' ', ' ', ']'],
          ['[', '=', '=', '-', '=', '=', ']'],
          ]
 
@@ -53,7 +53,7 @@ bounds = [
 # a very scary goblin. Added wounded versions that appear when various health thresholds are crossed.
 goblin1 = r'''
                             /\     /\
-	                   (  \___/  )
+                           (  \___/  )
                             |       |
                             \ o' 'o /
                              | """ |     __
@@ -72,9 +72,10 @@ goblin1 = r'''
                            /  \   /  \
                            ^^^^   ^^^^
 '''
+
 goblin_wounded1 = r'''   
                             /\     /\
-			   (  \___/  )
+                           (  \___/  )
                             |       |
                             \ o' 'o /
                              | """ |     __
@@ -93,13 +94,14 @@ goblin_wounded1 = r'''
                        ~   /  \   /  \
                      ~~~~~ ^^^^   ^^^^		
 '''
+
 goblin_wounded2 = r'''
-                     	     /\       
-			    (  \___/**~
+                     	     /\
+                     	    (  \___/**~
                             |       |~
                             \ o' 'o /~
-                             |     | ~   __
-                             \  =  /     \_\
+                             | """ | ~   __
+                             \ """ /     \_\
                               |   |      /  |_ 
                          ____/     \____/ /\  |>
                         | ___ .   . _____/  \  |>
@@ -114,19 +116,20 @@ goblin_wounded2 = r'''
                        ~   /  \   /  \
                      ~~~~~ ^^^^   ^^**~~~~~	
 '''
+
 goblin_wounded3 = r'''
-                     	     /\       
-			    (  \___/**~
+                     	     /\ 
+                     	    (  \___/**~
                             |       |~
                             \ o' '# /~
-                             |     | ~         
-                             \  -  /           
-                              |   |           
-                         ____/     \___        
-                        | ___ .   . __ \ __   
-                        | | /       \ \ \\_\      
-                        \ >)    . {} \ \___ |_       
-                        ~ {----(#)~~--}    \  |>       
+                             | """ | ~
+                             \ """ /
+                              |   |
+                         ____/     \___
+                        | ___ .   . __ \ __
+                        | | /       \ \ \\_\
+                        \ >)    . {} \ \___ |_
+                        ~ {----(#)~~--}    \  |>
                         ~ {       ~   }     \  |>
                        ~  {_/\____~/\_}      \  |>
                        ~    ||    ~||         \/
@@ -135,6 +138,7 @@ goblin_wounded3 = r'''
                        ~   /  \  ~/  \         ~
                      ~~~~~~^^^^~~~^^**~~~~~  ~~~~~
 '''
+
 goblin_meet = r'''
             You meet face to face with the ferocious goblin.
               Will you (A)ttack the goblin or (R)un away?
@@ -186,6 +190,31 @@ treasure_room = r'''
 | /                ~/ /                            \ \~               \ |
 |/                ~/ /                              \ \~               \|
 '''
+
+# game over screen
+game_over = r'''
+               ____       ____			       
+               \   \     /   /   _______      __     ~~_
+                \   \   /   /   /       \    |  |   ~|  |
+                 \   \_/   /   /   ___   \   |  |   ~|  |
+                  \_     _/   |   |   |   |  |  |   ~|  |
+                    |   |     |   |___|   |  |  |~~~~|  |
+                    |   |      ~         /   |  \~~~~/  |
+                    |~__|      ~\_______/     \________/ 
+                     ~         ~
+                 _____~      _~~~___    ______     ______
+                |  __  \~   |__~  __|  |  ____|   |  __  \
+                | |  \  \~     | |     | |        | |  \  \
+                | |   \  \~    | |     | |~~~~    | |   \  \
+                | |    |  |~   | |     |  ___|~   | |    |  |
+                | |___/  / ~ __| |__   | |_____~  | |___/  /
+                |~~_____/  ~|_______|  |_______|~ |_______/
+                 ~~        ~                    ~
+                 ~         ~                    ~
+                 ~         ~                    ~
+            ~~~~~~~~~~~~~~~~~~~~~~~        ~~~~~~~~~~~~~~
+'''
+
 # the player's stat values
 player_hp = 10
 player_eg = 10
@@ -204,6 +233,7 @@ lines = ['']
 def menu():
     print('>----------<')
     print('(P)lay')
+    print('(T)utorial')
     print('(E)xit')
     print('>----------<')
     play = False
@@ -212,11 +242,23 @@ def menu():
         menu_choice = input('>').lower().strip()
         if menu_choice == 'p':
             play = True
+        elif menu_choice == 't':
+            clear_screen()
+            pause = input('''
+Use WASD to move and Enter to confirm your choice. 
+When you encounter an enemy, choose your combat style depending upon what the enemy is doing.
+Your health and energy are displayed on the screen. 
+Certain attacks will lower your energy, don't let your energy hit 0!
+(Press enter to return to the menu...)
+>''')
+            clear_screen()
+            menu()
         elif menu_choice == 'e':
             exit_menu = True
         else:
-            print('Please type (P) to play or (E) to exit.')
+            print('Please type (P) to play, (T) for a tutorial, or (E) to exit.')
     if play:
+        clear_screen()
         print('''Welcome to the Dungeon of Doom...
 You enter a damp, musty room, water drips from the ceiling and torches set upon its walls grant a flicking light.
 You see a shape looming in the distance, a menacing goblin with a vicious cleaver guards the far door.
@@ -275,7 +317,9 @@ def move_char():
     previous_position = [4, 3]  # where the player was standing before checking if a wall was in the way.
     previous_position[0] = position[0]
     previous_position[1] = position [1]
-    move_input = input("Press 'W' to move forward, 'S' to move back, 'A' to move left, or 'D' to move right.\n>").upper().strip()
+    move_input = input('''Press 'W' to move forward, 'S' to move back, 'A' to move left, or 'D' to move right.
+Press enter to confirm your movement.
+>''').upper().strip()
     if move_input == 'W':
         new_position[0] = position[0] - 1
         new_position[1] = position[1]
@@ -378,8 +422,9 @@ def enemy_encounter():
             combat()
         pause = input('')
     elif choice1 == 'R':
-        print("You turn around to run, the goblin lunges onto your back and stabs you repeatedly until you die.")
-        print("Game over...")
+        pause = input("You turn around to run, the goblin lunges onto your back and stabs you repeatedly until you die.")
+        clear_screen()
+        print(game_over)
         pause = input('')
         quit()
     else:
@@ -442,7 +487,7 @@ def combat():
         rand_num = rand_1_3()
         if rand_num == 1:
             print('''
-        The goblin looks eager to dart in and prances lightly on his feet.''')
+The goblin looks eager to dart in and prances lightly on his feet.''')
         elif rand_num == 2:
             print('''
 The goblin juggles his cleaver between his hands and eyes you. It looks like he's gauging you.''')
@@ -461,9 +506,9 @@ The goblin howls at the ceiling, the frightful call echoes throughout the room
 and his red eyes glitter at you menacingly. His muscles are taut with anticipation.''')
         elif rand_num == 3:
             print('''
-        The goblin grins at you, needle-like teeth glinting in the torch light. 
-          He holds his cleaver high above his head and steps forward slowly, 
-                like a tiger stalking its prey before it lunges.''')
+The goblin grins at you, needle-like teeth glinting in the torch light. 
+    He holds his cleaver high above his head and creeps forward slowly, 
+        like a tiger stalking its prey before it lunges.''')
         enemy_h_atk = True
     elif stance == 'parry':
         rand_num = rand_1_3()
@@ -472,16 +517,16 @@ and his red eyes glitter at you menacingly. His muscles are taut with anticipati
 The goblin hisses at you and takes a step back, cleaver held up in front of its body.''')
         elif rand_num == 2:
             print('''
-        The goblin eyes you warily and braces itself as if expecting an attack.''')
+The goblin eyes you warily and braces itself as if expecting an attack.''')
         elif rand_num == 3:
             print('''
-        The goblin stares at you impassively, waiting for you to make your next move.''')
+The goblin stares at you impassively, waiting for you to make your next move.''')
         enemy_p = True
 
     # asks the player how they would like to react and while none of the moves are true, it runs player_stance() to check for their input until they input a correct response. Also displays the player's health and energy.
     print(f'''                    
-[HP = {player_hp}]          What move would you like to make?              
-[EG = {player_eg}]      (L)ight attack, (H)eavy attack, or (P)arry?''')
+                    What move would you like to make?                [ Health = {player_hp} ]
+                (L)ight attack, (H)eavy attack, or (P)arry?          [ Energy = {player_eg} ]''')
     while player_l_atk == False and player_h_atk == False and player_p == False:
         x = player_stance()
         if x == 'L':
@@ -511,7 +556,8 @@ it is too fast to dodge so steel yourself for its impact and stab at the goblin.
         elif rand_num == 2:
             print('You bring your sword high for a mighty blow, but the goblin lunges in with a quick stab before you can swing.')
         elif rand_num == 3:
-            print('With a mighty roar, you swing your sword in a powerful stroke, but the goblin darts to the side and stabs you, halting your blow.')
+            print('''With a mighty roar, you swing your sword in a powerful stroke, 
+but the goblin darts to the side and stabs you, halting your swing.''')
         pause = input('')
         player_hp -= 1
         player_eg -= 3
@@ -525,7 +571,8 @@ it is too fast to dodge so steel yourself for its impact and stab at the goblin.
         elif rand_num == 2:
             print("Ready for the goblin's swing, you easily parry his blade and strike back with a riposte.")
         elif rand_num == 3:
-            print("The goblin darts in with a quick jab, but you were prepared, your sword clashes with the cleaver and slides past to stab the goblin.")
+            print('''The goblin darts in with a quick jab, but you were prepared, 
+your sword clashes with the cleaver and slides past to stab the goblin.''')
         pause = input('')
         player_eg -= 1
         if player_eg < 0:
@@ -574,7 +621,8 @@ and your sword sinks home in your enemy's flesh, while his sinks home in yours.'
         if rand_num == 1:
             print('The goblin strikes with a mighty blow, powering through your parry.')
         elif rand_num == 2:
-            print("The goblin lunges at you with a powerful swing, you attempt to parry it but the blow is too strong and slides past your blade into your flesh.")
+            print('''The goblin lunges at you with a powerful swing, 
+you attempt to parry it but the blow is too strong and slides past your blade into your flesh.''')
         elif rand_num == 3:
             print('''The goblin jumps high, cleaver held above his head. You brace yourself and attempt to parry his blow, 
 but his momentum is too great and you crumple before his blow, sinking to the ground with a mighty wound.''')
@@ -631,7 +679,8 @@ The goblin's attempt to parry does nothing to stop your blade and it meets home 
         print(enemy_l_atk, enemy_h_atk, enemy_p, player_l_atk, player_h_atk, player_p)
         pause = input('error in player and enemy attack combination')
     if player_hp <= 0:
-        end = input('You die.')
+        clear_screen()
+        end = input(game_over)
         quit()
     if enemy_hp <= 0:
         clear_screen()
@@ -639,7 +688,16 @@ The goblin's attempt to parry does nothing to stop your blade and it meets home 
         pause = input('')
         clear_screen()
         print(treasure_room)
-        end = input('You enter into the room behind the goblin. It is filled with glittering treasure! Congratulations!')
+        pause = input('''You enter into the room behind the goblin. 
+Torches set on the far wall illuminate a lavishly furnished room filled with various trinkets glittering in the light. 
+(Press enter to investigate further...)''')
+        pause = input('''
+As you walk forward, footfalls dulled by the magnificently spun carpet covering the floor, 
+your eyes are drawn to the far end of the room.
+Seated upon a marble dais rests the mythical lost crown of Seketh, 
+an impossibly smooth circle of diamond set with gleaming gemstones resting beneath the piercing Eye of Seketh.
+With this crown you wield the power to rule the world. How will you use it?        
+        ''')
         quit()
 
 # the standard order of functions for moving around the map
@@ -655,7 +713,7 @@ def order_of_play(room):
 # lets you play the game, you just lost the game btw.
 def play_game(room):
     menu()
-    start = input('Press enter to continue...')
+    start = input('(Press enter to continue...)')
     clear_screen()
     stats()
     update_char(room)

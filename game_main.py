@@ -525,8 +525,8 @@ The goblin stares at you impassively, waiting for you to make your next move.'''
 
     # asks the player how they would like to react and while none of the moves are true, it runs player_stance() to check for their input until they input a correct response. Also displays the player's health and energy.
     print(f'''                    
-                    What move would you like to make?                [ Health = {player_hp} ]
-                (L)ight attack, (H)eavy attack, or (P)arry?          [ Energy = {player_eg} ]''')
+                  What move would you like to make?                [ Health = {player_hp} ]
+              (L)ight attack, (H)eavy attack, or (P)arry?          [ Energy = {player_eg} ]''')
     while player_l_atk == False and player_h_atk == False and player_p == False:
         x = player_stance()
         if x == 'L':

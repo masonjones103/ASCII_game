@@ -437,16 +437,7 @@ def enemy_encounter():
 
 # determines the enemy's stance based of a random dice roll from 1-3.
 def enemy_stance():
-    rand_stance = random.randint(1, 3)
-    if rand_stance == 1:
-        stance = 'lightattack'
-        return stance
-    elif rand_stance == 2:
-        stance = 'heavyattack'
-        return stance
-    elif rand_stance == 3:
-        stance = 'parry'
-        return stance
+    return random.choice(['lightattack', 'heavyattack', 'parry'])
 
 # gets the player's combat choice input
 def player_stance():
